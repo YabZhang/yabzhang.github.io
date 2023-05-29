@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Posts on yabzhang</title><link>https://yabzhang.github.io/posts/</link><description>Recent content in Posts on yabzhang</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><lastBuildDate>Tue, 30 May 2023 00:58:32 +0800</lastBuildDate><atom:link href="https://yabzhang.github.io/posts/index.xml" rel="self" type="application/rss+xml"/><item><title>Report:202305[22-28]</title><link>https://yabzhang.github.io/posts/weeklyreport/20230522-28/</link><pubDate>Tue, 30 May 2023 00:58:32 +0800</pubDate><guid>https://yabzhang.github.io/posts/weeklyreport/20230522-28/</guid><description>弱小和无知不是生存的障碍，傲慢才是。 ———— 《三体》
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>WeeklyReport on yabzhang</title><link>https://yabzhang.github.io/series/weeklyreport/</link><description>Recent content in WeeklyReport on yabzhang</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><lastBuildDate>Tue, 30 May 2023 00:58:32 +0800</lastBuildDate><atom:link href="https://yabzhang.github.io/series/weeklyreport/index.xml" rel="self" type="application/rss+xml"/><item><title>Report:202305[22-28]</title><link>https://yabzhang.github.io/posts/weeklyreport/20230522-28/</link><pubDate>Tue, 30 May 2023 00:58:32 +0800</pubDate><guid>https://yabzhang.github.io/posts/weeklyreport/20230522-28/</guid><description>弱小和无知不是生存的障碍，傲慢才是。 ———— 《三体》
 2023 [==================== ] 40.8% 写在前面 本周 工作 家庭 体验 总结 写在前面 下一周结束就是六月了。How time flies!
 无业四个月后，我决定开始写博客。
 可能是慢慢步入中年，再加上“长假中”的头脑不停闪光，我突然觉得这几年活得太浮躁和浅薄，也是该静静心了。
@@ -11,9 +11,4 @@
 看了 k8s 每个组件原理，除了基本使用外，算是增进了理解；学习笔记还待梳理 了解和使用 chatGPT 来完成个人项目，效果很不错，还是少不了人为驱动 家庭 老婆拔牙一周后拆线，新冠二次阳了————还好症状轻多了，替她难过😭 一起去吃客家菜打牙祭，毕竟好久没吃肉了————一开始她是抗拒的，后来还是吃了不少，哈哈哈；这个人口是心非！ 体验 电影：《发条橙》 这是一部几十年前的经典老片，找来看了下。虽然内容充斥着黄暴，主旨有关人性的思考确实很深刻和震撼的。 如果没有了选择，那么人将不再为人。
 日剧:《重启人生》 之前曾看过同名动漫，没想到这不是同个故事。女主角在一遍又一遍的重复经历三十多岁的人生，一开始只是试图避免早亡和再世为人，后续为了拯救好友拼搏而收获了不一样的人生感悟。故事内核很简单，情节近几年也很常见。但故事共鸣和共情还是很不错的，和老婆一起看收获了不少欢乐和感动。
 一些旅游和美食 vlog 休了几个月长假后，突然觉得一直躺平也挺没意思的。 人生还是要经历，更要欲望————吃喝玩乐！
-总结 目前最高优的是得去工作了； 此外，还有一些想法和计划，也要开始行动了。</description></item><item><title>DNS 解析配置文件 (On Linux)</title><link>https://yabzhang.github.io/posts/linux/dns_settings/</link><pubDate>Sun, 28 May 2023 14:55:01 +0800</pubDate><guid>https://yabzhang.github.io/posts/linux/dns_settings/</guid><description>1. /etc/hosts 2. /etc/resolv.conf 3. /etc/nsswitch.conf 4. 总结 5. 参考资料 本文介绍三个 Linux 上的 DNS 相关的配置文件，分别是/etc/hosts, /etc/resolv.conf 和 /etc/nsswitch.conf 。
-1. /etc/hosts /etc/hosts 文件用于本地主机名解析，例如：
-127.0.0.1 localhost ::1 localhost ip6-localhost ip6-loopback 该文件最为常见，包含一组 IP 地址和主机名的映射关系。一般当主机名解析时，Linux 会首先在该文件中查找，如果找到对应的主机名，则直接返回对应的 IP 地址，否则才会去 DNS 服务器上查找。
-2. /etc/resolv.conf /etc/resolv.conf 文件用于配置 DNS 服务器，其格式如下：
-// 本地主机配置 nameserver 192.xxx.xxx.xxx options edns0 search . // k8s 集群环境中的配置 search default.svc.cluster.local svc.cluster.local cluster.local nameserver 10.96.0.10 options ndots:5 nameserver 为配置的域名解析服务器地址，可以为 IPv4 或者 IPv6 地址；
-search 指定了一组拓展搜索域；若域名中的 .</description></item></channel></rss>
+总结 目前最高优的是得去工作了； 此外，还有一些想法和计划，也要开始行动了。</description></item></channel></rss>
