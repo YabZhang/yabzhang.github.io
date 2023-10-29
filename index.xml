@@ -1,4 +1,27 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>yabzhang</title><link>https://yabzhang.github.io/</link><description>Recent content on yabzhang</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><lastBuildDate>Sun, 28 May 2023 13:26:58 +0800</lastBuildDate><atom:link href="https://yabzhang.github.io/index.xml" rel="self" type="application/rss+xml"/><item><title>Report:2023[08-09]</title><link>https://yabzhang.github.io/posts/weeklyreport/202308-09/</link><pubDate>Sun, 24 Sep 2023 01:35:26 +0800</pubDate><guid>https://yabzhang.github.io/posts/weeklyreport/202308-09/</guid><description>总是播种，常常希望，偶尔收获。
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>yabzhang</title><link>https://yabzhang.github.io/</link><description>Recent content on yabzhang</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><lastBuildDate>Sun, 28 May 2023 13:26:58 +0800</lastBuildDate><atom:link href="https://yabzhang.github.io/index.xml" rel="self" type="application/rss+xml"/><item><title>202310</title><link>https://yabzhang.github.io/posts/weeklyreport/202310/</link><pubDate>Sun, 29 Oct 2023 23:31:42 +0800</pubDate><guid>https://yabzhang.github.io/posts/weeklyreport/202310/</guid><description>壮志未酬身先死，长使英雄泪满襟。 RIP! Mr. Li
+工作 一个好消息，试用期转正通过了。 这意味着又要苟一段时间了。
+这两个多月里，主要工作内容是用 PHP 维护旧项目，和适应新工作环境。目前已经逐步适应。
+就我所在的组，业务流程复杂，项目老旧，研发基建较差，内部流程和管理略混乱。 就是个人未来成长和发展需要主动思考和探索。
+公司福利和氛围还行，同事很容易沟通比较 nice 。
+个人不能随便逐流，时间久了就废了。
+不管多大的项目都应该思考的问题1:
+how will your system change
+a. 基于市场和客户需要，业务规则复杂多变，持续调整项目。
+b. 代码以脚本形式居多，易于调整，但不利与维护和管理。
+c. 未来一段时间会维持现状，以人力克服复杂度，逐步服务化和迁移技术栈。
+how will your system to maintaind
+a. 按照业务线分组维护，不同业务线有不同 owner。
+b. 大多业务都是老项目，代码质量参差不齐，需要逐步重构和迁移。
+c. 大多业务文档缺失，测试没有，物理机部署等，维护成本相对较高。
+how will your system to scale
+a. 项目规模主要在数据量级，计算和存储有一定压力，流量负载不大。
+b. 未来会逐步迁移技术栈，以 Go 服务为主，提升性能和可扩展性。
+老项目中 PHP 较多，未来需要逐步向 Go 服务迁移 ———— 这是个历练的机会。 进一步的工作计划：
+完善 Go 服务系统建设(优先提高开发效率);
+逐步完成一部分核心接口的梳理和迁移(逐步摆脱历史问题)；
+家庭 弟弟的婚礼顺利完成，一些小插曲就让它过去吧。
+放假回来我就感冒了，持续了一个月。身体大不如前，还是得锻炼起来。
+LRP降息了(4.3%)，每月贷款少三百块。算是一点安慰。</description></item><item><title>Report:2023[08-09]</title><link>https://yabzhang.github.io/posts/weeklyreport/202308-09/</link><pubDate>Sun, 24 Sep 2023 01:35:26 +0800</pubDate><guid>https://yabzhang.github.io/posts/weeklyreport/202308-09/</guid><description>总是播种，常常希望，偶尔收获。
 工作 入职新公司已经一个多月了，对新环境和新工作都比较熟悉了。
 虽然记得周报断了很久了，但是一直没补上————万物惯性使然，终于咬牙在这个周末的夜里来续写上了。希望可以一直保持记录和思考，不要迷失在生活的琐碎中。
 首先来聊聊工作方面吧。最近一个多月在新公司的体验比较割裂。 在工作环境、午餐下午茶等福利方面，体验确实很好，甚至中秋月饼都好吃很多。 但是在项目技术栈、研发基建、团队管理、企业文化、以及人才质量等方面，着实令人汗颜。 考虑这是一家企业，况且我刚来一个多月,还有更多的东西是我没能看清的吧。
