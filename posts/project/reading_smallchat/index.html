@@ -1,0 +1,279 @@
+<!doctype html><html lang=zh-cn><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1"><meta name=description content="smallchat1 是 redis 作者 antirez 所写的一个聊天室的小程序；代码短小精悍，很有意思。据说作者以此例向前端朋友展示系统编程的趣味 😄 2~
+这里记录下阅读源码所获。
+首先从 main 开始:
+/* The main() function implements the main chat logic: * 1. Accept new clients connections if any. * 2. Check if any client sent us some new message. * 3. Send the message to all the other clients. */ int main(void) { initChat(); while(1) { ... } return 0; } 根据注释，main 函数主要做了三件事：
+接受新的客户端连接； 检查是否有客户端发送过来新的消息； 发送消息给其他客户端； 代码首先调用了 initChat 完成一些初始化工作；然后程序进入到死循环，作为常驻服务，会不停执行消息逻辑。主题结构大体是这样。"><title>smallchat 源码阅读
+</title><link rel="shortcut icon" type=image/x-icon href=/><link rel=stylesheet href=/css/main.ebe15b0394daa6798b8a40aa572a71b5a7a1beb8cc02c392f5c142e7d08ddb6052e049639385106440b538f394884685082b7441eef27a6a8315ec723155dc15.css integrity="sha512-6+FbA5TapnmLikCqVypxtaehvrjMAsOS9cFC59CN22BS4Eljk4UQZEC1OPOUiEaFCCt0Qe7yemqDFexyMVXcFQ=="></head><body a=auto><main class=page-content aria-label=Content><div class=w><a href=/>..</a><article><p class=post-meta><time datetime="2023-11-04 23:35:15 +0800 +0800">2023-11-04</time></p><h1>smallchat 源码阅读</h1><p><code>smallchat</code><sup id=fnref:1><a href=#fn:1 class=footnote-ref role=doc-noteref>1</a></sup> 是 <code>redis</code> 作者 <code>antirez</code> 所写的一个聊天室的小程序；代码短小精悍，很有意思。据说作者以此例向前端朋友展示系统编程的趣味 😄 <sup id=fnref:2><a href=#fn:2 class=footnote-ref role=doc-noteref>2</a></sup>~</p><p>这里记录下阅读源码所获。</p><p>首先从 <code>main</code> 开始:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c data-lang=c><span style=display:flex><span><span style=color:#75715e>/* The main() function implements the main chat logic:
+</span></span></span><span style=display:flex><span><span style=color:#75715e> * 1. Accept new clients connections if any.
+</span></span></span><span style=display:flex><span><span style=color:#75715e> * 2. Check if any client sent us some new message.
+</span></span></span><span style=display:flex><span><span style=color:#75715e> * 3. Send the message to all the other clients. */</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>int</span> <span style=color:#a6e22e>main</span>(<span style=color:#66d9ef>void</span>) {
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>initChat</span>();
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>while</span>(<span style=color:#ae81ff>1</span>) {
+</span></span><span style=display:flex><span>        ...
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> <span style=color:#ae81ff>0</span>;
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>根据注释，<code>main</code> 函数主要做了三件事：</p><ol><li>接受新的客户端连接；</li><li>检查是否有客户端发送过来新的消息；</li><li>发送消息给其他客户端；</li></ol><p>代码首先调用了 <code>initChat</code> 完成一些初始化工作；然后程序进入到死循环，作为常驻服务，会不停执行消息逻辑。主题结构大体是这样。</p><hr><p>那么来看下 <code>initChat</code> 做了哪些事情：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c data-lang=c><span style=display:flex><span><span style=color:#75715e>#define MAX_CLIENTS 1000 </span><span style=color:#75715e>// This is actually the higher file descriptor.
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span><span style=color:#75715e>#define SERVER_PORT 7711
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>/* This structure represents a connected client. There is very little
+</span></span></span><span style=display:flex><span><span style=color:#75715e> * info about it: the socket descriptor and the nick name, if set, otherwise
+</span></span></span><span style=display:flex><span><span style=color:#75715e> * the first byte of the nickname is set to 0 if not set.
+</span></span></span><span style=display:flex><span><span style=color:#75715e> * The client can set its nickname with /nick &lt;nickname&gt; command. */</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>struct</span> client {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>int</span> fd;     <span style=color:#75715e>// Client socket.
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#66d9ef>char</span> <span style=color:#f92672>*</span>nick; <span style=color:#75715e>// Nickname of the client.
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>};
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>/* This global structure encasulates the global state of the chat. */</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>struct</span> chatState {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>int</span> serversock;     <span style=color:#75715e>// Listening server socket.
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#66d9ef>int</span> numclients;     <span style=color:#75715e>// Number of connected clients right now.
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#66d9ef>int</span> maxclient;      <span style=color:#75715e>// The greatest &#39;clients&#39; slot populated.
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#66d9ef>struct</span> client <span style=color:#f92672>*</span>clients[MAX_CLIENTS]; <span style=color:#75715e>// Clients are set in the corresponding
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>                                         <span style=color:#75715e>// slot of their socket descriptor.
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>};
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>struct</span> chatState <span style=color:#f92672>*</span>Chat; <span style=color:#75715e>// Initialized at startup.
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>/* Allocate and init the global stuff. */</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>void</span> <span style=color:#a6e22e>initChat</span>(<span style=color:#66d9ef>void</span>) {
+</span></span><span style=display:flex><span>    Chat <span style=color:#f92672>=</span> <span style=color:#a6e22e>chatMalloc</span>(<span style=color:#66d9ef>sizeof</span>(<span style=color:#f92672>*</span>Chat));
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>memset</span>(Chat,<span style=color:#ae81ff>0</span>,<span style=color:#66d9ef>sizeof</span>(<span style=color:#f92672>*</span>Chat));
+</span></span><span style=display:flex><span>    <span style=color:#75715e>/* No clients at startup, of course. */</span>
+</span></span><span style=display:flex><span>    Chat<span style=color:#f92672>-&gt;</span>maxclient <span style=color:#f92672>=</span> <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>; <span style=color:#75715e>// 记录当前最大客户端槽数
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    Chat<span style=color:#f92672>-&gt;</span>numclients <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>; <span style=color:#75715e>// 记录当前的客户端连接数
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>/* Create our listening socket, bound to the given port. This
+</span></span></span><span style=display:flex><span><span style=color:#75715e>     * is where our clients will connect. */</span>
+</span></span><span style=display:flex><span>    Chat<span style=color:#f92672>-&gt;</span>serversock <span style=color:#f92672>=</span> <span style=color:#a6e22e>createTCPServer</span>(SERVER_PORT);
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>if</span> (Chat<span style=color:#f92672>-&gt;</span>serversock <span style=color:#f92672>==</span> <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>) {
+</span></span><span style=display:flex><span>        <span style=color:#a6e22e>perror</span>(<span style=color:#e6db74>&#34;Creating listening socket&#34;</span>);
+</span></span><span style=display:flex><span>        <span style=color:#a6e22e>exit</span>(<span style=color:#ae81ff>1</span>);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>void</span> <span style=color:#f92672>*</span><span style=color:#a6e22e>chatMalloc</span>(<span style=color:#66d9ef>size_t</span> size) {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>void</span> <span style=color:#f92672>*</span>ptr <span style=color:#f92672>=</span> <span style=color:#a6e22e>malloc</span>(size);
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>if</span> (ptr <span style=color:#f92672>==</span> NULL) {
+</span></span><span style=display:flex><span>        <span style=color:#a6e22e>perror</span>(<span style=color:#e6db74>&#34;Out of memory&#34;</span>);
+</span></span><span style=display:flex><span>        <span style=color:#a6e22e>exit</span>(<span style=color:#ae81ff>1</span>);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> ptr;
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p><code>initChat</code> 注释说是负责分配和初始化全局变量。</p><p>顺便提一下， <code>C</code> 语言中是需要手动做动态内存管理的，具体是需要申请和回收动态堆内存。如果是常驻进程，申请后不回收会导致内存泄露，严重时会导致程序 OOM 被系统杀死退出；程序的内存会在退出后，由系统回收。</p><p>此外在申请到动态内存后需要手动清零初始化后使用（否则会有残留的随机值）。
+程序里<code>malloc</code> 和 <code>free</code> 就是用来做动态内存申请和回收函数, <code>memset</code> 用来清零初始化。</p><p>程序声明了全局变量 <code>Chat</code> 来保存聊天室的全局状态，包括：</p><ol><li><code>serversock</code> 用来保存服务监听连接, 用来处理新的客户端连接请求；</li><li><code>numclients</code> 和 <code>maxclient</code> 用来记录客户端连接数的状态；</li><li><code>client</code> 指向一个数组，用来保存所有接入的客户端连接（用 <code>client</code> 结构记录）；</li></ol><p>程序初始化为 <code>Chat</code> 申请了内存，并清零和初始化。通过 <code>createTCPServer</code> 创建了服务连接，保存在<code>serversock</code> 字段。初始化就完成了。</p><hr><p>好奇 <code>createTCPServer</code> 都做了哪些事？属于偏底层的网络编程范畴了，不亏是 <code>redis</code> 的作者。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c data-lang=c><span style=display:flex><span><span style=color:#75715e>/* Create a TCP socket lisetning to &#39;port&#39; ready to accept connections. */</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>int</span> <span style=color:#a6e22e>createTCPServer</span>(<span style=color:#66d9ef>int</span> port) {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>int</span> s, yes <span style=color:#f92672>=</span> <span style=color:#ae81ff>1</span>;
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>struct</span> sockaddr_in sa;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>if</span> ((s <span style=color:#f92672>=</span> <span style=color:#a6e22e>socket</span>(AF_INET, SOCK_STREAM, <span style=color:#ae81ff>0</span>)) <span style=color:#f92672>==</span> <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>) <span style=color:#66d9ef>return</span> <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>;
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>setsockopt</span>(s, SOL_SOCKET, SO_REUSEADDR, <span style=color:#f92672>&amp;</span>yes, <span style=color:#66d9ef>sizeof</span>(yes)); <span style=color:#75715e>// Best effort.
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>memset</span>(<span style=color:#f92672>&amp;</span>sa,<span style=color:#ae81ff>0</span>,<span style=color:#66d9ef>sizeof</span>(sa));
+</span></span><span style=display:flex><span>    sa.sin_family <span style=color:#f92672>=</span> AF_INET;
+</span></span><span style=display:flex><span>    sa.sin_port <span style=color:#f92672>=</span> <span style=color:#a6e22e>htons</span>(port);
+</span></span><span style=display:flex><span>    sa.sin_addr.s_addr <span style=color:#f92672>=</span> <span style=color:#a6e22e>htonl</span>(INADDR_ANY);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>if</span> (<span style=color:#a6e22e>bind</span>(s,(<span style=color:#66d9ef>struct</span> sockaddr<span style=color:#f92672>*</span>)<span style=color:#f92672>&amp;</span>sa,<span style=color:#66d9ef>sizeof</span>(sa)) <span style=color:#f92672>==</span> <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span> <span style=color:#f92672>||</span>
+</span></span><span style=display:flex><span>        <span style=color:#a6e22e>listen</span>(s, <span style=color:#ae81ff>511</span>) <span style=color:#f92672>==</span> <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>)
+</span></span><span style=display:flex><span>    {
+</span></span><span style=display:flex><span>        <span style=color:#a6e22e>close</span>(s);
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>;
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> s;
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>struct</span> sockaddr_in {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>short</span>            sin_family;   <span style=color:#75715e>// e.g. AF_INET, AF_INET6
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#66d9ef>unsigned</span> <span style=color:#66d9ef>short</span>   sin_port;     <span style=color:#75715e>// e.g. htons(3490)
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#66d9ef>struct</span> in_addr   sin_addr;     <span style=color:#75715e>// see struct in_addr, below
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#66d9ef>char</span>             sin_zero[<span style=color:#ae81ff>8</span>];  <span style=color:#75715e>// zero this if you want to, padding for memory alignment
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>};
+</span></span></code></pre></div><p>首先声明了变量，<code>s</code> 用于保存服务连接的文件描述符，<code>yes</code> 用于传递 <code>socket</code> 设置的参数选项。</p><p><code>socket(AF_INET, SOCK_STREAM, 0)</code> 创建了一个套接字描述符;
+而 <code>AF_INET</code> 类型的 <code>SOCK_STREAM</code> 流式套接字类型，是指一种以太网协议族的流式协议类型，也就是 <code>TCP</code> 协议网络套接字。其他的类型声明可参照 <code>socket.h</code>。</p><p><code>setsockopt</code> 设置套接字参数选项，<code>SOL_SOCKET</code>常量指明为套接字，<code>SO_REUSEADDR</code> 选项表示允许重用本地地址和端口，可以在同一端口上启动多个实例监听。这里的用途是在服务关闭后可以快速重启，避免因本地端口占用导致服务启动失败（因<code>TCP</code>连接退出会保持你在 <code>TIME_WAIT</code> 一段时间，以确认所有包被接收）。</p><p>完成地址参数<code>sa</code>的初始化后，调用 <code>bind</code> 绑定套接字到本地地址; 绑定成功后，使用<code>listen</code>标记为服务端套接字，并开始监听连接请求。其中 <code>listen</code> 的第二个参数 <code>511</code> 表示连接等待队列(<code>backlog queue</code>)的最大连接数，具体可参考 <code>listen</code> 的文档。</p><pre tabindex=0><code>NAME
+     listen – listen for connections on a socket
+
+SYNOPSIS
+     #include &lt;sys/socket.h&gt;
+
+     int
+     listen(int socket, int backlog);
+
+DESCRIPTION
+     Creation of socket-based connections requires several operations.  First, a socket is created with socket(2).  Next, a willingness to accept incoming connections and a queue limit for incoming connections are specified with listen().  Finally, the connections are accepted with accept(2).  The listen() call
+     applies only to sockets of type SOCK_STREAM.
+
+     The backlog parameter defines the maximum length for the queue of pending connections.  If a connection request arrives with the queue full, the client may receive an error with an indication of ECONNREFUSED.  Alternatively, if the underlying protocol supports retransmission, the request may be ignored so
+     that retries may succeed.
+</code></pre><p>至此，服务端监听套接字创建和初始化完成，可以开始接受客户端连接请求了。整个初始化 <code>initChat</code> 就完成了。</p><hr><p>接下来看 <code>main</code> 函数中如何实现“三件事”的。</p><p>参照前文，“三件事”分别为：</p><ol><li>接受新的客户端连接；</li><li>检查是否有客户端发送过来新的消息；</li><li>发送消息给其他客户端；</li></ol><p>为了方便地处理网络IO读写一般会做多路复用。基本原理是让系统帮我们监听一组描述符上的读写事件，当有事件发生时，系统会通知我们去处理对应的事件。常见的IO复用处理方式有: <code>select</code>, <code>poll</code>, <code>epoll</code> 等，更多细节推荐《Linux 高性能服务器编程》<sup id=fnref:3><a href=#fn:3 class=footnote-ref role=doc-noteref>3</a></sup>。</p><p>这里程序中采用 <code>select</code> 来实现，但其实 <code>epoll</code> 会更高效一些。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c data-lang=c><span style=display:flex><span><span style=color:#66d9ef>while</span>(<span style=color:#ae81ff>1</span>) {
+</span></span><span style=display:flex><span>        fd_set readfds;
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>struct</span> timeval tv;
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>int</span> retval;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#a6e22e>FD_ZERO</span>(<span style=color:#f92672>&amp;</span>readfds);
+</span></span><span style=display:flex><span>        <span style=color:#75715e>/* When we want to be notified by select() that there is
+</span></span></span><span style=display:flex><span><span style=color:#75715e>         * activity? If the listening socket has pending clients to accept
+</span></span></span><span style=display:flex><span><span style=color:#75715e>         * or if any other client wrote anything. */</span>
+</span></span><span style=display:flex><span>        <span style=color:#a6e22e>FD_SET</span>(Chat<span style=color:#f92672>-&gt;</span>serversock, <span style=color:#f92672>&amp;</span>readfds);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>for</span> (<span style=color:#66d9ef>int</span> j <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>; j <span style=color:#f92672>&lt;=</span> Chat<span style=color:#f92672>-&gt;</span>maxclient; j<span style=color:#f92672>++</span>) {
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>if</span> (Chat<span style=color:#f92672>-&gt;</span>clients[j]) <span style=color:#a6e22e>FD_SET</span>(j, <span style=color:#f92672>&amp;</span>readfds);
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#75715e>/* Set a timeout for select(), see later why this may be useful
+</span></span></span><span style=display:flex><span><span style=color:#75715e>         * in the future (not now). */</span>
+</span></span><span style=display:flex><span>        tv.tv_sec <span style=color:#f92672>=</span> <span style=color:#ae81ff>1</span>; <span style=color:#75715e>// 1 sec timeout
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>        tv.tv_usec <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#75715e>/* Select wants as first argument the maximum file descriptor
+</span></span></span><span style=display:flex><span><span style=color:#75715e>         * in use plus one. It can be either one of our clients or the
+</span></span></span><span style=display:flex><span><span style=color:#75715e>         * server socket itself. */</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>int</span> maxfd <span style=color:#f92672>=</span> Chat<span style=color:#f92672>-&gt;</span>maxclient;
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span> (maxfd <span style=color:#f92672>&lt;</span> Chat<span style=color:#f92672>-&gt;</span>serversock) maxfd <span style=color:#f92672>=</span> Chat<span style=color:#f92672>-&gt;</span>serversock;
+</span></span><span style=display:flex><span>        retval <span style=color:#f92672>=</span> <span style=color:#a6e22e>select</span>(maxfd<span style=color:#f92672>+</span><span style=color:#ae81ff>1</span>, <span style=color:#f92672>&amp;</span>readfds, NULL, NULL, <span style=color:#f92672>&amp;</span>tv);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        ...
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>为了使用<code>select</code>, 代码首先声明了 <code>fd_set</code> 类型变量 <code>readfds</code> 用来保存一组描述符，完成清零(<code>FD_ZERO(&amp;readfds)</code>) 后分别把服务套接字和所有客户端套接字注册到 <code>readfds</code> 上:</p><ol><li><code>FD_SET(Chat->serversock, &amp;readfds)</code></li><li><code>for (int j = 0; j &lt;= Chat->maxclient; j++) { if (Chat->clients[j]) FD_SET(j, &amp;readfds);}</code></li></ol><p>同时还声明了超时参数<code>struct timeval tv</code>，和初始化参数值。
+最后调用<code>select</code>来监听套接字上的读写事件，直到超时返回。</p><hr><p>接下来看如何处理新的客户端连接：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c data-lang=c><span style=display:flex><span><span style=color:#75715e>/* If the listening socket is &#34;readable&#34;, it actually means
+</span></span></span><span style=display:flex><span><span style=color:#75715e>    * there are new clients connections pending to accept. */</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>if</span> (<span style=color:#a6e22e>FD_ISSET</span>(Chat<span style=color:#f92672>-&gt;</span>serversock, <span style=color:#f92672>&amp;</span>readfds)) {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>int</span> fd <span style=color:#f92672>=</span> <span style=color:#a6e22e>acceptClient</span>(Chat<span style=color:#f92672>-&gt;</span>serversock);
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>struct</span> client <span style=color:#f92672>*</span>c <span style=color:#f92672>=</span> <span style=color:#a6e22e>createClient</span>(fd);
+</span></span><span style=display:flex><span>    <span style=color:#75715e>/* Send a welcome message. */</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>char</span> <span style=color:#f92672>*</span>welcome_msg <span style=color:#f92672>=</span>
+</span></span><span style=display:flex><span>        <span style=color:#e6db74>&#34;Welcome to Simple Chat! &#34;</span>
+</span></span><span style=display:flex><span>        <span style=color:#e6db74>&#34;Use /nick &lt;nick&gt; to set your nick.</span><span style=color:#ae81ff>\n</span><span style=color:#e6db74>&#34;</span>;
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>write</span>(c<span style=color:#f92672>-&gt;</span>fd,welcome_msg,<span style=color:#a6e22e>strlen</span>(welcome_msg));
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>printf</span>(<span style=color:#e6db74>&#34;Connected client fd=%d</span><span style=color:#ae81ff>\n</span><span style=color:#e6db74>&#34;</span>, fd);
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>/* Create a new client bound to &#39;fd&#39;. This is called when a new client
+</span></span></span><span style=display:flex><span><span style=color:#75715e> * connects. As a side effect updates the global Chat state. */</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>struct</span> client <span style=color:#f92672>*</span><span style=color:#a6e22e>createClient</span>(<span style=color:#66d9ef>int</span> fd) {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>char</span> nick[<span style=color:#ae81ff>32</span>]; <span style=color:#75715e>// Used to create an initial nick for the user.
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#66d9ef>int</span> nicklen <span style=color:#f92672>=</span> <span style=color:#a6e22e>snprintf</span>(nick,<span style=color:#66d9ef>sizeof</span>(nick),<span style=color:#e6db74>&#34;user:%d&#34;</span>,fd);
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>struct</span> client <span style=color:#f92672>*</span>c <span style=color:#f92672>=</span> <span style=color:#a6e22e>chatMalloc</span>(<span style=color:#66d9ef>sizeof</span>(<span style=color:#f92672>*</span>c));
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>socketSetNonBlockNoDelay</span>(fd); <span style=color:#75715e>// Pretend this will not fail.
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    c<span style=color:#f92672>-&gt;</span>fd <span style=color:#f92672>=</span> fd;
+</span></span><span style=display:flex><span>    c<span style=color:#f92672>-&gt;</span>nick <span style=color:#f92672>=</span> <span style=color:#a6e22e>chatMalloc</span>(nicklen<span style=color:#f92672>+</span><span style=color:#ae81ff>1</span>);
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>memcpy</span>(c<span style=color:#f92672>-&gt;</span>nick,nick,nicklen);
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>assert</span>(Chat<span style=color:#f92672>-&gt;</span>clients[c<span style=color:#f92672>-&gt;</span>fd] <span style=color:#f92672>==</span> NULL); <span style=color:#75715e>// This should be available.
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    Chat<span style=color:#f92672>-&gt;</span>clients[c<span style=color:#f92672>-&gt;</span>fd] <span style=color:#f92672>=</span> c;
+</span></span><span style=display:flex><span>    <span style=color:#75715e>/* We need to update the max client set if needed. */</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>if</span> (c<span style=color:#f92672>-&gt;</span>fd <span style=color:#f92672>&gt;</span> Chat<span style=color:#f92672>-&gt;</span>maxclient) Chat<span style=color:#f92672>-&gt;</span>maxclient <span style=color:#f92672>=</span> c<span style=color:#f92672>-&gt;</span>fd;
+</span></span><span style=display:flex><span>    Chat<span style=color:#f92672>-&gt;</span>numclients<span style=color:#f92672>++</span>;
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> c;
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>/* Set the specified socket in non-blocking mode, with no delay flag. */</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>int</span> <span style=color:#a6e22e>socketSetNonBlockNoDelay</span>(<span style=color:#66d9ef>int</span> fd) {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>int</span> flags, yes <span style=color:#f92672>=</span> <span style=color:#ae81ff>1</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>/* Set the socket nonblocking.
+</span></span></span><span style=display:flex><span><span style=color:#75715e>     * Note that fcntl(2) for F_GETFL and F_SETFL can&#39;t be
+</span></span></span><span style=display:flex><span><span style=color:#75715e>     * interrupted by a signal. */</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>if</span> ((flags <span style=color:#f92672>=</span> <span style=color:#a6e22e>fcntl</span>(fd, F_GETFL)) <span style=color:#f92672>==</span> <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>) <span style=color:#66d9ef>return</span> <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>;
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>if</span> (<span style=color:#a6e22e>fcntl</span>(fd, F_SETFL, flags <span style=color:#f92672>|</span> O_NONBLOCK) <span style=color:#f92672>==</span> <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>) <span style=color:#66d9ef>return</span> <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>/* This is best-effort. No need to check for errors. */</span>
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>setsockopt</span>(fd, IPPROTO_TCP, TCP_NODELAY, <span style=color:#f92672>&amp;</span>yes, <span style=color:#66d9ef>sizeof</span>(yes));
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> <span style=color:#ae81ff>0</span>;
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>在 <code>select</code> 返回后，通过<code>FD_ISSET</code>检查服务套接字是否可读，如果可读则表示有新的客户端连接请求，调用 <code>acceptClient</code> 来接受客户端连接。并向新的客户端发送一条欢迎消息。</p><p><code>createClient</code> 函数用来创建一个新的客户端连接，传入的参数是客户端套接字描述符，函数会为其创建一个 <code>client</code> 结构体，并初始化一些状态参数（如客户端连接数等），最后把新的客户端连接保存到全局变量 <code>Chat</code> 中。这里程序采用文件描述符数值作为数组下标来保存客户端连接，这样可以方便的通过文件描述符来查找对应的客户端连接，但是前几位被标准输入输出错误等占用，程序中会先找到当前最大的文件描述符，然后从这个位置开始保存客户端连接。</p><p><code>socketSetNonBlockNoDelay</code> 函数用来设置套接字为非阻塞模式。
+同时设置 <code>TCP_NODELAY</code> 参数，表示禁用 <code>Nagle</code> 算法（用于自动拼接小的文本段，以提供网络传输效率），这里是为了尽快送达和避免消息延迟。</p><hr><p>处理来自客户端的消息:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c data-lang=c><span style=display:flex><span><span style=color:#75715e>/* Here for each connected client, check if there are pending
+</span></span></span><span style=display:flex><span><span style=color:#75715e>    * data the client sent us. */</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>char</span> readbuf[<span style=color:#ae81ff>256</span>];
+</span></span><span style=display:flex><span><span style=color:#66d9ef>for</span> (<span style=color:#66d9ef>int</span> j <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>; j <span style=color:#f92672>&lt;=</span> Chat<span style=color:#f92672>-&gt;</span>maxclient; j<span style=color:#f92672>++</span>) {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>if</span> (Chat<span style=color:#f92672>-&gt;</span>clients[j] <span style=color:#f92672>==</span> NULL) <span style=color:#66d9ef>continue</span>;
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>if</span> (<span style=color:#a6e22e>FD_ISSET</span>(j, <span style=color:#f92672>&amp;</span>readfds)) {
+</span></span><span style=display:flex><span>       
+</span></span><span style=display:flex><span>       <span style=color:#75715e>/* Here we just hope that there is a well formed
+</span></span></span><span style=display:flex><span><span style=color:#75715e>        * message waiting for us. But it is entirely possible
+</span></span></span><span style=display:flex><span><span style=color:#75715e>        * that we read just half a message. In a normal program
+</span></span></span><span style=display:flex><span><span style=color:#75715e>        * that is not designed to be that simple, we should try
+</span></span></span><span style=display:flex><span><span style=color:#75715e>        * to buffer reads until the end-of-the-line is reached. */</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>int</span> nread <span style=color:#f92672>=</span> <span style=color:#a6e22e>read</span>(j,readbuf,<span style=color:#66d9ef>sizeof</span>(readbuf)<span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>);
+</span></span><span style=display:flex><span>        ... 
+</span></span><span style=display:flex><span>    }
+</span></span></code></pre></div><p>这段代码遍历所有客户端连接，检查是否有客户端发送过来的消息。如果有则调用 <code>read</code> 读取消息内容; 因为所有的客户端连接都是非阻塞的，所以能够立刻返回结果。但read很可能读取到的是不完整的消息，这里程序简单处理，直接读取一行消息内容(真实的工程中会通过分隔符来判断读取完全，否则会被判定为不完整信息)。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c data-lang=c><span style=display:flex><span><span style=color:#66d9ef>if</span> (nread <span style=color:#f92672>&lt;=</span> <span style=color:#ae81ff>0</span>) {
+</span></span><span style=display:flex><span>    <span style=color:#75715e>/* Error or short read means that the socket
+</span></span></span><span style=display:flex><span><span style=color:#75715e>     * was closed. */</span>
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>printf</span>(<span style=color:#e6db74>&#34;Disconnected client fd=%d, nick=%s</span><span style=color:#ae81ff>\n</span><span style=color:#e6db74>&#34;</span>,
+</span></span><span style=display:flex><span>        j, Chat<span style=color:#f92672>-&gt;</span>clients[j]<span style=color:#f92672>-&gt;</span>nick);
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>freeClient</span>(Chat<span style=color:#f92672>-&gt;</span>clients[j]);
+</span></span><span style=display:flex><span>} <span style=color:#66d9ef>else</span> {
+</span></span><span style=display:flex><span>    <span style=color:#75715e>/* The client sent us a message. We need to
+</span></span></span><span style=display:flex><span><span style=color:#75715e>     * relay this message to all the other clients
+</span></span></span><span style=display:flex><span><span style=color:#75715e>     * in the chat. */</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>struct</span> client <span style=color:#f92672>*</span>c <span style=color:#f92672>=</span> Chat<span style=color:#f92672>-&gt;</span>clients[j];
+</span></span><span style=display:flex><span>    readbuf[nread] <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>/* If the user message starts with &#34;/&#34;, we
+</span></span></span><span style=display:flex><span><span style=color:#75715e>     * process it as a client command. So far
+</span></span></span><span style=display:flex><span><span style=color:#75715e>     * only the /nick &lt;newnick&gt; command is implemented. */</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>if</span> (readbuf[<span style=color:#ae81ff>0</span>] <span style=color:#f92672>==</span> <span style=color:#e6db74>&#39;/&#39;</span>) {
+</span></span><span style=display:flex><span>        ...
+</span></span><span style=display:flex><span>    } <span style=color:#66d9ef>else</span> {
+</span></span><span style=display:flex><span>    <span style=color:#75715e>/* Create a message to send everybody (and show
+</span></span></span><span style=display:flex><span><span style=color:#75715e>     * on the server console) in the form:
+</span></span></span><span style=display:flex><span><span style=color:#75715e>     *   nick&gt; some message. */</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>char</span> msg[<span style=color:#ae81ff>256</span>];
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>int</span> msglen <span style=color:#f92672>=</span> <span style=color:#a6e22e>snprintf</span>(msg, <span style=color:#66d9ef>sizeof</span>(msg),
+</span></span><span style=display:flex><span>        <span style=color:#e6db74>&#34;%s&gt; %s&#34;</span>, c<span style=color:#f92672>-&gt;</span>nick, readbuf);
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>printf</span>(<span style=color:#e6db74>&#34;%s&#34;</span>,msg);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>/* Send it to all the other clients. */</span>
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>sendMsgToAllClientsBut</span>(j,msg,msglen);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>这段代码根据<code>read</code>返回的结果来进一步处理。首先是判定客户端已关闭（一般需要有专门的客户端关闭指令或者多次心跳保活判定），需要对客户端资源进行释放，以及状态更新。其次是正常读取的客户端消息，这里消息细分为两类，一种是以<code>/&lt;cmd> content</code>格式的指令内容；另一种就是全文本消息，需要加上发送人昵称转发给其他所有人。</p><p>针对“指令消息”的处理逻辑就是常见的字符串处理：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c data-lang=c><span style=display:flex><span><span style=color:#75715e>/* If the user message starts with &#34;/&#34;, we
+</span></span></span><span style=display:flex><span><span style=color:#75715e> * process it as a client command. So far
+</span></span></span><span style=display:flex><span><span style=color:#75715e> * only the /nick &lt;newnick&gt; command is implemented. */</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>if</span> (readbuf[<span style=color:#ae81ff>0</span>] <span style=color:#f92672>==</span> <span style=color:#e6db74>&#39;/&#39;</span>) {
+</span></span><span style=display:flex><span>    <span style=color:#75715e>/* Remove any trailing newline. */</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>char</span> <span style=color:#f92672>*</span>p;
+</span></span><span style=display:flex><span>    p <span style=color:#f92672>=</span> <span style=color:#a6e22e>strchr</span>(readbuf,<span style=color:#e6db74>&#39;\r&#39;</span>); <span style=color:#66d9ef>if</span> (p) <span style=color:#f92672>*</span>p <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>;
+</span></span><span style=display:flex><span>    p <span style=color:#f92672>=</span> <span style=color:#a6e22e>strchr</span>(readbuf,<span style=color:#e6db74>&#39;\n&#39;</span>); <span style=color:#66d9ef>if</span> (p) <span style=color:#f92672>*</span>p <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>;
+</span></span><span style=display:flex><span>    <span style=color:#75715e>/* Check for an argument of the command, after
+</span></span></span><span style=display:flex><span><span style=color:#75715e>        * the space. */</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>char</span> <span style=color:#f92672>*</span>arg <span style=color:#f92672>=</span> <span style=color:#a6e22e>strchr</span>(readbuf,<span style=color:#e6db74>&#39; &#39;</span>);
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>if</span> (arg) {
+</span></span><span style=display:flex><span>        <span style=color:#f92672>*</span>arg <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>; <span style=color:#75715e>/* Terminate command name. */</span>
+</span></span><span style=display:flex><span>        arg<span style=color:#f92672>++</span>; <span style=color:#75715e>/* Argument is 1 byte after the space. */</span>
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>if</span> (<span style=color:#f92672>!</span><span style=color:#a6e22e>strcmp</span>(readbuf,<span style=color:#e6db74>&#34;/nick&#34;</span>) <span style=color:#f92672>&amp;&amp;</span> arg) {
+</span></span><span style=display:flex><span>        <span style=color:#a6e22e>free</span>(c<span style=color:#f92672>-&gt;</span>nick);
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>int</span> nicklen <span style=color:#f92672>=</span> <span style=color:#a6e22e>strlen</span>(arg);
+</span></span><span style=display:flex><span>        c<span style=color:#f92672>-&gt;</span>nick <span style=color:#f92672>=</span> <span style=color:#a6e22e>chatMalloc</span>(nicklen<span style=color:#f92672>+</span><span style=color:#ae81ff>1</span>);
+</span></span><span style=display:flex><span>        <span style=color:#a6e22e>memcpy</span>(c<span style=color:#f92672>-&gt;</span>nick,arg,nicklen<span style=color:#f92672>+</span><span style=color:#ae81ff>1</span>);
+</span></span><span style=display:flex><span>    } <span style=color:#66d9ef>else</span> {
+</span></span><span style=display:flex><span>        <span style=color:#75715e>/* Unsupported command. Send an error. */</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>char</span> <span style=color:#f92672>*</span>errmsg <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;Unsupported command</span><span style=color:#ae81ff>\n</span><span style=color:#e6db74>&#34;</span>;
+</span></span><span style=display:flex><span>        <span style=color:#a6e22e>write</span>(c<span style=color:#f92672>-&gt;</span>fd,errmsg,<span style=color:#a6e22e>strlen</span>(errmsg));
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>根据首位的<code>/</code>判定为指令消息后，根据分隔换行标识出消息尾部（并置零）；
+然后利用空格区分出指令内容和消息内容，以<code>0</code>分隔；
+语句<code>!strcmp(readbuf "/nick) && arg</code> 判定指令为<code>/nick</code>后，把指令内容<code>arg</code>指向的字符串拷贝后赋值到客户端的昵称字段中。</p><p>而转发消息给其他所有人的逻辑则是遍历所有客户端连接，把消息内容发送给其他所有人：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c data-lang=c><span style=display:flex><span><span style=color:#75715e>/* Send the specified string to all connected clients but the one
+</span></span></span><span style=display:flex><span><span style=color:#75715e> * having as socket descriptor &#39;excluded&#39;. If you want to send something
+</span></span></span><span style=display:flex><span><span style=color:#75715e> * to every client just set excluded to an impossible socket: -1. */</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>void</span> <span style=color:#a6e22e>sendMsgToAllClientsBut</span>(<span style=color:#66d9ef>int</span> excluded, <span style=color:#66d9ef>char</span> <span style=color:#f92672>*</span>s, <span style=color:#66d9ef>size_t</span> len) {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>for</span> (<span style=color:#66d9ef>int</span> j <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>; j <span style=color:#f92672>&lt;=</span> Chat<span style=color:#f92672>-&gt;</span>maxclient; j<span style=color:#f92672>++</span>) {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span> (Chat<span style=color:#f92672>-&gt;</span>clients[j] <span style=color:#f92672>==</span> NULL <span style=color:#f92672>||</span>
+</span></span><span style=display:flex><span>            Chat<span style=color:#f92672>-&gt;</span>clients[j]<span style=color:#f92672>-&gt;</span>fd <span style=color:#f92672>==</span> excluded) <span style=color:#66d9ef>continue</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#75715e>/* Important: we don&#39;t do ANY BUFFERING. We just use the kernel
+</span></span></span><span style=display:flex><span><span style=color:#75715e>         * socket buffers. If the content does not fit, we don&#39;t care.
+</span></span></span><span style=display:flex><span><span style=color:#75715e>         * This is needed in order to keep this program simple. */</span>
+</span></span><span style=display:flex><span>        <span style=color:#a6e22e>write</span>(Chat<span style=color:#f92672>-&gt;</span>clients[j]<span style=color:#f92672>-&gt;</span>fd,s,len);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>具体实现就是遍历所有客户端连接，把消息内容写入到客户端套接字中(这里写入也有可能失败，展示程序处于简单并未处理可能的错误)。其中未赋值的客户端连接 和 指定的排除客户端连接（消息源本人）会被跳过。</p><p>至此，整个程序逻辑就完成了。</p><p>作为一个展示样例，这端代码展示了如何处理内存管理、网络套接字的使用、多路复用、客户端连接的管理、消息和指令的处理等逻辑。除去注释只有短短两百多行，用来学习和理解服务端编程已经足够了 ———— 麻雀虽小五脏俱全。</p><div class=footnotes role=doc-endnotes><hr><ol><li id=fn:1><p><a href=https://github.com/antirez/smallchat>https://github.com/antirez/smallchat</a>&#160;<a href=#fnref:1 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p></li><li id=fn:2><p>视频分享 <a href="https://www.youtube.com/watch?v=eT02gzeLmF0">https://www.youtube.com/watch?v=eT02gzeLmF0</a>&#160;<a href=#fnref:2 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p></li><li id=fn:3><p>Linux 高性能服务器编程 <a href=https://book.douban.com/subject/24722611/>https://book.douban.com/subject/24722611/</a>&#160;<a href=#fnref:3 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p></li></ol></div></article></div></main></body></html>
