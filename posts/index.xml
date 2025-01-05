@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Posts on yabzhang</title><link>https://yabzhang.github.io/posts/</link><description>Recent content in Posts on yabzhang</description><generator>Hugo</generator><language>zh-cn</language><lastBuildDate>Sun, 05 Jan 2025 17:01:29 +0800</lastBuildDate><atom:link href="https://yabzhang.github.io/posts/index.xml" rel="self" type="application/rss+xml"/><item><title>2024</title><link>https://yabzhang.github.io/posts/weeklyreport/2024/</link><pubDate>Sun, 05 Jan 2025 17:01:29 +0800</pubDate><guid>https://yabzhang.github.io/posts/weeklyreport/2024/</guid><description>古希腊哲学家 伊壁鸠鲁
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Posts on yabzhang</title><link>https://yabzhang.github.io/posts/</link><description>Recent content in Posts on yabzhang</description><generator>Hugo</generator><language>zh-cn</language><lastBuildDate>Sun, 05 Jan 2025 17:01:29 +0800</lastBuildDate><atom:link href="https://yabzhang.github.io/posts/index.xml" rel="self" type="application/rss+xml"/><item><title>2024</title><link>https://yabzhang.github.io/posts/reports/2024/</link><pubDate>Sun, 05 Jan 2025 17:01:29 +0800</pubDate><guid>https://yabzhang.github.io/posts/reports/2024/</guid><description>古希腊哲学家 伊壁鸠鲁
 快乐是人生的起点和终点 不加节制的快乐是灾难 满足于少量的东西，使贫穷如同富裕 人生最大的障碍是对未来的恐惧 无谓的欲望是人类不幸的根源 因事情繁多，我停止了记录。
 目前家庭和工作均进入相对稳定阶段，我会继续开始记录和反思我的工作和生活。
 本文是作为补全的 2024 年总结。
@@ -15,7 +15,7 @@
 这里记录下阅读源码所获。
 首先从 main 开始:
 /* The main() function implements the main chat logic: * 1. Accept new clients connections if any. * 2. Check if any client sent us some new message. * 3. Send the message to all the other clients. */ int main(void) { initChat(); while(1) { ... } return 0; } 根据注释，main 函数主要做了三件事：
-接受新的客户端连接； 检查是否有客户端发送过来新的消息； 发送消息给其他客户端； 代码首先调用了 initChat 完成一些初始化工作；然后程序进入到死循环，作为常驻服务，会不停执行消息逻辑。主题结构大体是这样。</description></item><item><title>202310</title><link>https://yabzhang.github.io/posts/weeklyreport/202310/</link><pubDate>Sun, 29 Oct 2023 23:31:42 +0800</pubDate><guid>https://yabzhang.github.io/posts/weeklyreport/202310/</guid><description>壮志未酬身先死，长使英雄泪满襟。 RIP! Mr. Li
+接受新的客户端连接； 检查是否有客户端发送过来新的消息； 发送消息给其他客户端； 代码首先调用了 initChat 完成一些初始化工作；然后程序进入到死循环，作为常驻服务，会不停执行消息逻辑。主题结构大体是这样。</description></item><item><title>202310</title><link>https://yabzhang.github.io/posts/reports/202310/</link><pubDate>Sun, 29 Oct 2023 23:31:42 +0800</pubDate><guid>https://yabzhang.github.io/posts/reports/202310/</guid><description>壮志未酬身先死，长使英雄泪满襟。 RIP! Mr. Li
 工作 一个好消息，试用期转正通过了。 这意味着又要苟一段时间了。
 这两个多月里，主要工作内容是用 PHP 维护旧项目，和适应新工作环境。目前已经逐步适应。
 就我所在的组，业务流程复杂，项目老旧，研发基建较差，内部流程和管理略混乱。 就是个人未来成长和发展需要主动思考和探索。
@@ -38,7 +38,7 @@ b. 未来会逐步迁移技术栈，以 Go 服务为主，提升性能和可扩�
 逐步完成一部分核心接口的梳理和迁移(逐步摆脱历史问题)；
 家庭 弟弟的婚礼顺利完成，一些小插曲就让它过去吧。
 放假回来我就感冒了，持续了一个月。身体大不如前，还是得锻炼起来。
-LRP降息了(4.3%)，每月贷款利息少几百块。算是一点安慰。</description></item><item><title>Report:2023[08-09]</title><link>https://yabzhang.github.io/posts/weeklyreport/202308-09/</link><pubDate>Sun, 24 Sep 2023 01:35:26 +0800</pubDate><guid>https://yabzhang.github.io/posts/weeklyreport/202308-09/</guid><description>总是播种，常常希望，偶尔收获。
+LRP降息了(4.3%)，每月贷款利息少几百块。算是一点安慰。</description></item><item><title>Report:2023[08-09]</title><link>https://yabzhang.github.io/posts/reports/202308-09/</link><pubDate>Sun, 24 Sep 2023 01:35:26 +0800</pubDate><guid>https://yabzhang.github.io/posts/reports/202308-09/</guid><description>总是播种，常常希望，偶尔收获。
 工作 入职新公司已经一个多月了，对新环境和新工作都比较熟悉了。
 虽然记得周报断了很久了，但是一直没补上————万物惯性使然，终于咬牙在这个周末的夜里来续写上了。希望可以一直保持记录和思考，不要迷失在生活的琐碎中。
 首先来聊聊工作方面吧。最近一个多月在新公司的体验比较割裂。 在工作环境、午餐下午茶等福利方面，体验确实很好，甚至中秋月饼都好吃很多。 但是在项目技术栈、研发基建、团队管理、企业文化、以及人才质量等方面，着实令人汗颜。 考虑这是一家企业，况且我刚来一个多月,还有更多的东西是我没能看清的吧。
@@ -55,10 +55,10 @@ LRP降息了(4.3%)，每月贷款利息少几百块。算是一点安慰。</des
 后来我看到外人不只来自墙外，原来身边就潜伏很多。 宏大的理想，响亮的口号，也离人心越来越远。 我想这确实需要一些变革了，我们的教育或者制度，需要更适应变化无常的现状。 虽然这很不容易，但总会有光明一天的到来。
 再后来我看到越来越多的”坏人“都在作威作福，无处不在，无所顾忌。 他们捅出了天大的窟窿，但极少受伤 ———— 顶多避避风雨，砸死的是下面一片片的花花草草。 ”坏人“怎么这么多？他们都是哪里来的？我想不明白。 有一天我突然想到，或许不怪”坏人“太多 ———— 就像”臭水沟“旁的苍蝇蚊子，而是我离”好人“太远了。
 这片土壤确实很肥沃，培养了无数的花花草草，但也养育了无数的害虫。 繁茂的花草也隐藏了无数的邪恶和肮脏，不好也不坏，本就如此。
-纠结没有意义，始终不合拍，那还是离开吧。</description></item><item><title>202308[07-13]</title><link>https://yabzhang.github.io/posts/weeklyreport/20230807-13/</link><pubDate>Tue, 08 Aug 2023 22:57:17 +0800</pubDate><guid>https://yabzhang.github.io/posts/weeklyreport/20230807-13/</guid><description>本周 工作学习 完成入职流程 入职体检 + 背调
+纠结没有意义，始终不合拍，那还是离开吧。</description></item><item><title>202308[07-13]</title><link>https://yabzhang.github.io/posts/reports/20230807-13/</link><pubDate>Tue, 08 Aug 2023 22:57:17 +0800</pubDate><guid>https://yabzhang.github.io/posts/reports/20230807-13/</guid><description>本周 工作学习 完成入职流程 入职体检 + 背调
 人间体验 有朋自远方来 大学室友来玩，匆忙接待。一晃好多年，原来大学入学已是十年前的事了。
 时不我待。
-跟老同学聊聊近况，分享各自人生点滴 近况各不相同，但友谊依旧。半生归来，仍是少年。</description></item><item><title>report:2023[0730-0806]</title><link>https://yabzhang.github.io/posts/weeklyreport/20230730-0806/</link><pubDate>Sun, 06 Aug 2023 22:52:14 +0800</pubDate><guid>https://yabzhang.github.io/posts/weeklyreport/20230730-0806/</guid><description>心即理；致良知；知行和一。
+跟老同学聊聊近况，分享各自人生点滴 近况各不相同，但友谊依旧。半生归来，仍是少年。</description></item><item><title>report:2023[0730-0806]</title><link>https://yabzhang.github.io/posts/reports/20230730-0806/</link><pubDate>Sun, 06 Aug 2023 22:52:14 +0800</pubDate><guid>https://yabzhang.github.io/posts/reports/20230730-0806/</guid><description>心即理；致良知；知行和一。
 本周 工作学习 准备入职流程 预备各种证明材料。 可能是环境变差了，也可能是我自身原因。 很值得思考，多年下来，我到底成长了什么？行业又发生了什么？
 出租屋的生活 距离确实很方便
 主要靠外卖生存；也仅仅是生存，谈不上什么生活品质
@@ -82,7 +82,7 @@ LRP降息了(4.3%)，每月贷款利息少几百块。算是一点安慰。</des
 首先不得不承认，AI 有着无与伦比的优越性。 从我们现实的时空维度来看，AI 的工作能力是全天候的，且搬运和整理信息效率极高，涉及到信息量级更是人力不可及。 但是，当前阶段的 AI 受限于模型、算力和数据等限制，仍相对机械无法实现通用，还无法完全取代人类 ———— 尤其是涉及到 思考、推理 的部分。但是技术会持续进步，现在的问题或许在未来就不是问题了。
 关于未来 AI 相关技术的发展：
 AI 机器人开始干涉现实
-AI 模型与机器人、IoT等技术的联动，使得技术变革开始从 知识型 覆盖到 实践型</description></item><item><title>report:2023[0723-0729]</title><link>https://yabzhang.github.io/posts/weeklyreport/20230723-0729/</link><pubDate>Tue, 25 Jul 2023 09:12:32 +0800</pubDate><guid>https://yabzhang.github.io/posts/weeklyreport/20230723-0729/</guid><description> 我们每个人都是小丑，一生当中就在玩着五个球，家庭、工作、健康、朋友和灵魂。五个球当中只有工作这个球是橡胶做的，砸下去还会弹起来，其他四个球是玻璃做的，砸碎了再也不会复原。———— 《黑雾》
+AI 模型与机器人、IoT等技术的联动，使得技术变革开始从 知识型 覆盖到 实践型</description></item><item><title>report:2023[0723-0729]</title><link>https://yabzhang.github.io/posts/reports/20230723-0729/</link><pubDate>Tue, 25 Jul 2023 09:12:32 +0800</pubDate><guid>https://yabzhang.github.io/posts/reports/20230723-0729/</guid><description> 我们每个人都是小丑，一生当中就在玩着五个球，家庭、工作、健康、朋友和灵魂。五个球当中只有工作这个球是橡胶做的，砸下去还会弹起来，其他四个球是玻璃做的，砸碎了再也不会复原。———— 《黑雾》
 本周 工作学习 准备面试 从周末开始刷一些材料和项目，准备周一的两场复试。
 复试偏重项目经历，技术原理也会不断追问；反映出一些 知识盲区 和掌握不牢固的知识点。
 最后两个面试都通过，不过只有一个匹配到了 Offer ，部分方面有些不太理想还是决定先接了。
@@ -117,7 +117,7 @@ AI 模型与机器人、IoT等技术的联动，使得技术变革开始从 知�
 虽然基本的道理我都明白，宇宙熵增，机能衰退，记忆衰减，记忆曲线等等&amp;hellip; 确实让人很无奈。
 知识不是用来死记硬背的，那么久需要经常拿出来使用。
 梳理知识体系也好，深入研究也好，总之需要“活”起来。
-下周 准备入职事宜 培养良好习惯（作息、工作、学习方面） 坚持思考和总结</description></item><item><title>report:2023[0709-0722]</title><link>https://yabzhang.github.io/posts/weeklyreport/20230709-0722/</link><pubDate>Sun, 23 Jul 2023 01:48:11 +0800</pubDate><guid>https://yabzhang.github.io/posts/weeklyreport/20230709-0722/</guid><description>念念不忘，必有回响。
+下周 准备入职事宜 培养良好习惯（作息、工作、学习方面） 坚持思考和总结</description></item><item><title>report:2023[0709-0722]</title><link>https://yabzhang.github.io/posts/reports/20230709-0722/</link><pubDate>Sun, 23 Jul 2023 01:48:11 +0800</pubDate><guid>https://yabzhang.github.io/posts/reports/20230709-0722/</guid><description>念念不忘，必有回响。
 上周忘记记录，本周就一并记录吧。
 本周 09-15工作学习 16-22工作学习 人间体验 三省吾身 下周 本周 09-15工作学习 海投简历后，石沉大海；认真修改简历后再投，开始有好转；
 通过极客时间学习了测试的课程，考虑往测试方向发展；
@@ -150,7 +150,7 @@ Typro 的作者提出的说法“IT个体户”，具体是指通过互联网承
 一开始我在桌面系统上来解决这个事，最好支持操作的录制和重放。一通搜索发现确实有戏，Mac 系统自带了 Automator 可以完成 脚本录制 和 操作重放；Win 系统也有不少很好的桌面软件支持。看来各生态都有这类自动化的方案。
 我的笔记本是 Mac ，我简单测试了 Automator 算不上完美，不过一般常见也够用。 除了支持基本 UI 交互录制，还开放了部分系统和应用的功能支持，也可以通过脚本拓展。对于个人办公场景，这套工具可以满足大部分场景，且尽可能不用编写代码。不过因为是系统绑定，以后不方便丢到 VPS 执行，也不方便服务化和规模化。
 我确认过全任务流程可以调整为全部在浏览器里完成，这不就是 Web 自动化测试嘛。 提到 Web UI 自动化, 那就不得不提一下大名鼎鼎的 Selenium 了 ———— 提供了一系列与浏览器交互的接口并能模拟各种用户行为，有着庞大的开源社区生态。但近年来，微软开源的 Playwright1 同样支持与浏览器交互和用户行为模拟，且功能更为强大和便于使用。使用示例如下：
-启动浏览器录制交互，实时生成交互代码 # 打开youtube页面，并开始录制操作脚本 playwright codegen https://www.youtube.com # 支持很多浏览器参数，加载原有Session, 并开始录制 playwright codegen --load-session=cookies.json https://www.youtube.com 甚至支持导出测试视频 😂 context = browser.new_context( record_video_dir=&amp;#34;videos/&amp;#34;, record_video_size={&amp;#34;width&amp;#34;: 640, &amp;#34;height&amp;#34;: 480} ) 支持加载浏览器插件 context = await playwright.chromium.launch_persistent_context( user_data_dir, headless=False, args=[ f&amp;#34;--disable-extensions-except={path_to_extension}&amp;#34;, f&amp;#34;--load-extension={path_to_extension}&amp;#34;, ], ) 支持 pytest 插件，可以方便的整合测试用例 pytest --browser webkit --headed</description></item><item><title>report:2023[0701-0708]</title><link>https://yabzhang.github.io/posts/weeklyreport/20230701-0708/</link><pubDate>Tue, 11 Jul 2023 02:29:18 +0800</pubDate><guid>https://yabzhang.github.io/posts/weeklyreport/20230701-0708/</guid><description>对抗焦虑的最好方式，就是开始做具体的事！
+启动浏览器录制交互，实时生成交互代码 # 打开youtube页面，并开始录制操作脚本 playwright codegen https://www.youtube.com # 支持很多浏览器参数，加载原有Session, 并开始录制 playwright codegen --load-session=cookies.json https://www.youtube.com 甚至支持导出测试视频 😂 context = browser.new_context( record_video_dir=&amp;#34;videos/&amp;#34;, record_video_size={&amp;#34;width&amp;#34;: 640, &amp;#34;height&amp;#34;: 480} ) 支持加载浏览器插件 context = await playwright.chromium.launch_persistent_context( user_data_dir, headless=False, args=[ f&amp;#34;--disable-extensions-except={path_to_extension}&amp;#34;, f&amp;#34;--load-extension={path_to_extension}&amp;#34;, ], ) 支持 pytest 插件，可以方便的整合测试用例 pytest --browser webkit --headed</description></item><item><title>report:2023[0701-0708]</title><link>https://yabzhang.github.io/posts/reports/20230701-0708/</link><pubDate>Tue, 11 Jul 2023 02:29:18 +0800</pubDate><guid>https://yabzhang.github.io/posts/reports/20230701-0708/</guid><description>对抗焦虑的最好方式，就是开始做具体的事！
 本周 工作学习 简历海投了数十家，很少有沟通推进 ———— 寒冬凛冽呵；约了某公司面试，二轮游； 写一个模拟发布程序（Web端）帮媳妇儿处理工作； 之前是浅浅的了解，现打算跟进这波 AI 技术方向（偏应用向）; 家庭生活 又要租房啦 😭
 目前住的属实太偏僻。
 小区开始垃圾分类，渐渐头疼 ———— 难倒也不难，乱入真的麻烦
@@ -164,7 +164,7 @@ Typro 的作者提出的说法“IT个体户”，具体是指通过互联网承
 李玟因抑郁症自杀
 是的，就是我小时候那位经常在电视里唱歌的美女。RIP 🙏🏻~ 这件事让我非常惊讶。她终年49岁，去世前早已财务自由，而主因大概是长期受不良情感影响（坊间传闻）。
 而且以此为契机，网络上有了很多关于抑郁症的科普和讨论。 精神和身体是一样的，不同人也会有强弱之分，也会有虚弱和患病的时候。 可能人有的时候承受了过于巨大的负荷时，也只有崩溃和自我结束才是唯一的解脱吧； 这样看起来，坚强，乐观和豁达也是一种才能吧。
-三省吾身 继续收心，专注在事上。 培养习惯，做事不随意。 总结 坚持、乐观。</description></item><item><title>report:2023[0611-0630]</title><link>https://yabzhang.github.io/posts/weeklyreport/20230611-0630/</link><pubDate>Mon, 03 Jul 2023 00:23:40 +0800</pubDate><guid>https://yabzhang.github.io/posts/weeklyreport/20230611-0630/</guid><description>百年未有之大变局！
+三省吾身 继续收心，专注在事上。 培养习惯，做事不随意。 总结 坚持、乐观。</description></item><item><title>report:2023[0611-0630]</title><link>https://yabzhang.github.io/posts/reports/20230611-0630/</link><pubDate>Mon, 03 Jul 2023 00:23:40 +0800</pubDate><guid>https://yabzhang.github.io/posts/reports/20230611-0630/</guid><description>百年未有之大变局！
 最近家里很多事情要忙，人也慵懒就索性一并记录。
 本周 工作学习 各种东西杂七杂八地看: tcp 服务器项目、go runtime、leetcode 题目等 开始磨练 编程技巧 和 英语能力 家庭 悬念揭晓：陪老婆去产检
 目前通勤是个大问题，考虑换到方便上班和产检的地方住。
@@ -187,7 +187,7 @@ B站：睡前故事
 事情开始有变化~
 反省 每个人的时间是有限的，低质量地错误投入就是浪费生命； 不要试图去掌握住所有的事，生活和学习都需要一个重心； 总结 工作和生活都需要聚焦！一次做好一件事！
 生活节奏还不是很规律，需要把握好节奏。
-保持学习和思考，刻意练习，整理和输出。</description></item><item><title>report:2023[0604-0610]</title><link>https://yabzhang.github.io/posts/weeklyreport/20230604-0610/</link><pubDate>Tue, 13 Jun 2023 16:38:56 +0800</pubDate><guid>https://yabzhang.github.io/posts/weeklyreport/20230604-0610/</guid><description>太过先进的科技，看起来就像是魔法。
+保持学习和思考，刻意练习，整理和输出。</description></item><item><title>report:2023[0604-0610]</title><link>https://yabzhang.github.io/posts/reports/20230604-0610/</link><pubDate>Tue, 13 Jun 2023 16:38:56 +0800</pubDate><guid>https://yabzhang.github.io/posts/reports/20230604-0610/</guid><description>太过先进的科技，看起来就像是魔法。
 本周 工作 回顾 tcp 协议 家庭 陪家属拜访医院
 花费较大精力处理家务
 体验 读书: 《金龙鱼背后的粮油帝国》
@@ -202,7 +202,7 @@ c. 1:1:1 广告词背后的故事, 果然广告都是极具诱导性的！
 此作者的另一本《芯片战争》值得一读。
 Apple Vision Pro 发布会
 6.6 号苹果发布 Vision Pro 混合虚拟现实 (MR=VR+AR) 产品，厨子称之为空间计算设备————确实震撼到我了。 而近半年的 chatGPT 技术也一度引爆朋友圈和社交媒体。 总算是真切地感受到未来已来！
-总结 本周较多时间处理家务，工作和学习时间较少。下周继续努力！</description></item><item><title>report:2023[0529-0603]</title><link>https://yabzhang.github.io/posts/weeklyreport/20230529-0603/</link><pubDate>Mon, 05 Jun 2023 15:21:57 +0800</pubDate><guid>https://yabzhang.github.io/posts/weeklyreport/20230529-0603/</guid><description>Nothing is true, everything is permitted. ———— Assassin&amp;rsquo;s Creed
+总结 本周较多时间处理家务，工作和学习时间较少。下周继续努力！</description></item><item><title>report:2023[0529-0603]</title><link>https://yabzhang.github.io/posts/reports/20230529-0603/</link><pubDate>Mon, 05 Jun 2023 15:21:57 +0800</pubDate><guid>https://yabzhang.github.io/posts/reports/20230529-0603/</guid><description>Nothing is true, everything is permitted. ———— Assassin&amp;rsquo;s Creed
 [===================== ] 42.5% 本周 工作 家庭 体验 总结 本周 工作 回顾 Go Runtime &amp;amp; GC
 学习 iptables &amp;amp; netfilter
 开始准备面试和求职
@@ -216,7 +216,7 @@ Apple Vision Pro 发布会
 爽快之余，不禁心中一紧：为何我不早点读原著？为何甘愿接受别人告诉我的那个故事？
 《清醒思考的艺术》罗尔夫·多贝利、朱刘华(译) 本书作者列举了 50 个常见的人脑思维误区 ———— 从进化和认知心理学判断，帮助理解、看清以及避免这些思维陷阱。
 其中几个，我觉得格外有趣：
-* 禀赋效应 ———— 让我们放弃比让我们囤积困难得多 * 故事偏误 ———— 用故事扭曲和简化现实，并排斥不合适编进故事的一切 * 行动偏误 ———— 社会更喜欢下意识的行动，而不喜欢有意义的等待 * 确认偏误 ———— 倾向于阐释新信息，使得让它们与我们现有的理论、世界观和信念相兼容 人类社会的巨大进步都发生在近几千年里，但内在的思维方式和机制却并没有发生太大改变; 面对日益复杂的现代社会，某些从原始社会延续下来的“聪明”反而成为阻碍了。</description></item><item><title>Report:2023[0522-0528]</title><link>https://yabzhang.github.io/posts/weeklyreport/20230522-28/</link><pubDate>Tue, 30 May 2023 00:58:32 +0800</pubDate><guid>https://yabzhang.github.io/posts/weeklyreport/20230522-28/</guid><description>弱小和无知不是生存的障碍，傲慢才是。 ———— 《三体》
+* 禀赋效应 ———— 让我们放弃比让我们囤积困难得多 * 故事偏误 ———— 用故事扭曲和简化现实，并排斥不合适编进故事的一切 * 行动偏误 ———— 社会更喜欢下意识的行动，而不喜欢有意义的等待 * 确认偏误 ———— 倾向于阐释新信息，使得让它们与我们现有的理论、世界观和信念相兼容 人类社会的巨大进步都发生在近几千年里，但内在的思维方式和机制却并没有发生太大改变; 面对日益复杂的现代社会，某些从原始社会延续下来的“聪明”反而成为阻碍了。</description></item><item><title>Report:2023[0522-0528]</title><link>https://yabzhang.github.io/posts/reports/20230522-28/</link><pubDate>Tue, 30 May 2023 00:58:32 +0800</pubDate><guid>https://yabzhang.github.io/posts/reports/20230522-28/</guid><description>弱小和无知不是生存的障碍，傲慢才是。 ———— 《三体》
 2023 [==================== ] 40.8% 写在前面 本周 工作 家庭 体验 总结 写在前面 下一周结束就是六月了。How time flies!
 无业四个月后，我决定开始写博客。
 可能是慢慢步入中年，再加上“长假中”的头脑不停闪光，我突然觉得这几年活得太浮躁和浅薄，也是该静静心了。
